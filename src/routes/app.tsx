@@ -13,7 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
       { title: "Verdant — Your Carbon Footprint, Quietly Tracked" },
