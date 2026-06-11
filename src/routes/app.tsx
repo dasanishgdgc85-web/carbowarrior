@@ -12,7 +12,6 @@ import {
   Zap,
   TrendingUp,
   ChevronRight,
-  ArrowLeft,
   Check,
   Medal,
   Settings,
@@ -158,23 +157,26 @@ function AppHome() {
           />
         )}
 
-        <nav className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[440px] -translate-x-1/2 items-center justify-around border-t border-black/5 bg-paper/85 px-8 py-4 backdrop-blur-xl">
+        <nav
+          aria-label="Primary"
+          className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[440px] -translate-x-1/2 items-center justify-around border-t border-black/5 bg-paper/85 px-8 py-4 backdrop-blur-xl"
+        >
           <NavBtn
             active={tab === "home"}
             onClick={() => setTab("home")}
-            icon={<HomeIcon className="size-5" />}
+            icon={<HomeIcon className="size-5" aria-hidden="true" />}
             label="Home"
           />
           <NavBtn
             active={tab === "challenges"}
             onClick={() => setTab("challenges")}
-            icon={<Trophy className="size-5" />}
+            icon={<Trophy className="size-5" aria-hidden="true" />}
             label="Challenges"
           />
           <NavBtn
             active={tab === "profile"}
             onClick={() => setTab("profile")}
-            icon={<User className="size-5" />}
+            icon={<User className="size-5" aria-hidden="true" />}
             label="Profile"
           />
         </nav>
@@ -773,4 +775,3 @@ function NavBtn({
   );
 }
 
-export { ArrowLeft };
