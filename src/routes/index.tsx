@@ -107,11 +107,17 @@ function Landing() {
             <form
               onSubmit={onWaitlist}
               className="flex max-w-md gap-2 rounded-2xl bg-card p-2 ring-1 ring-black/5"
+              aria-label="Join the waitlist"
             >
+              <label htmlFor="waitlist-email" className="sr-only">
+                Email address
+              </label>
               <div className="flex flex-1 items-center gap-2 px-3">
-                <Mail className="size-4 text-sage" />
+                <Mail className="size-4 text-sage" aria-hidden="true" />
                 <Input
+                  id="waitlist-email"
                   type="email"
+                  required
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -303,11 +309,11 @@ function Landing() {
       <footer className="border-t border-black/5">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-xs text-sage md:flex-row">
           <p>© 2026 Verdant Labs. Built for the long now.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-ink">Privacy</a>
-            <a href="#" className="hover:text-ink">Terms</a>
-            <a href="#" className="hover:text-ink">Contact</a>
-          </div>
+          <nav aria-label="Footer" className="flex gap-6">
+            <a href="/privacy" className="hover:text-ink">Privacy</a>
+            <a href="/terms" className="hover:text-ink">Terms</a>
+            <a href="mailto:hello@verdant.app" className="hover:text-ink">Contact</a>
+          </nav>
         </div>
       </footer>
     </div>
@@ -395,7 +401,7 @@ function PriceCard({
 
 function PhonePreview() {
   return (
-    <div className="relative mx-auto w-full max-w-sm">
+    <div className="relative mx-auto w-full max-w-sm" aria-hidden="true">
       <div className="absolute -inset-8 rounded-[3rem] bg-mint/60 blur-2xl" />
       <div className="relative overflow-hidden rounded-[2.5rem] border-8 border-ink/90 bg-paper shadow-2xl">
         <div className="space-y-4 p-5 pt-8">
