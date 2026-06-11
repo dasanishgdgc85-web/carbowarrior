@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { estimateCO2, formatCO2, type LogKind } from "@/lib/carbon";
 import { toast } from "sonner";
 import {
   Car,
@@ -12,7 +13,6 @@ import {
   Zap,
   TrendingUp,
   ChevronRight,
-  ArrowLeft,
   Check,
   Medal,
   Settings,
@@ -60,7 +60,7 @@ export const Route = createFileRoute("/app")({
   component: AppHome,
 });
 
-type LogKind = "Transport" | "Meal" | "Energy" | "Purchase";
+
 
 const initialTips = [
   {
@@ -158,23 +158,26 @@ function AppHome() {
           />
         )}
 
-        <nav className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[440px] -translate-x-1/2 items-center justify-around border-t border-black/5 bg-paper/85 px-8 py-4 backdrop-blur-xl">
+        <nav
+          aria-label="Primary"
+          className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-[440px] -translate-x-1/2 items-center justify-around border-t border-black/5 bg-paper/85 px-8 py-4 backdrop-blur-xl"
+        >
           <NavBtn
             active={tab === "home"}
             onClick={() => setTab("home")}
-            icon={<HomeIcon className="size-5" />}
+            icon={<HomeIcon className="size-5" aria-hidden="true" />}
             label="Home"
           />
           <NavBtn
             active={tab === "challenges"}
             onClick={() => setTab("challenges")}
-            icon={<Trophy className="size-5" />}
+            icon={<Trophy className="size-5" aria-hidden="true" />}
             label="Challenges"
           />
           <NavBtn
             active={tab === "profile"}
             onClick={() => setTab("profile")}
-            icon={<User className="size-5" />}
+            icon={<User className="size-5" aria-hidden="true" />}
             label="Profile"
           />
         </nav>
@@ -262,9 +265,9 @@ function HomeTab({
           <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-sage">
             Tuesday, June 10
           </p>
-          <h2 className="text-xl font-semibold tracking-tight text-ink">
+          <h1 className="text-xl font-semibold tracking-tight text-ink">
             Morning, Sarah
-          </h2>
+          </h1>
         </div>
         <Link
           to="/"
@@ -485,9 +488,9 @@ function ChallengesTab({ onOpenBoard }: { onOpenBoard: () => void }) {
         <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-sage">
           Community
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
           Challenges
-        </h2>
+        </h1>
       </header>
       <main className="space-y-4 px-4">
         {challenges.map((c) => {
@@ -560,9 +563,9 @@ function ProfileTab({
         <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-sage">
           Account
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
           Profile
-        </h2>
+        </h1>
       </header>
       <main className="space-y-6 px-4">
         <div className="flex items-center gap-4 rounded-2xl bg-card p-5 ring-1 ring-black/5">
@@ -628,15 +631,13 @@ function LogForm({
   onCancel: () => void;
 }) {
   const [amount, setAmount] = useState("");
-  const [option, setOption] = useState<string>(
-    kind === "Transport"
-      ? "Car"
-      : kind === "Meal"
-        ? "Plant-based"
-        : kind === "Energy"
-          ? "Electricity"
-          : "Clothing",
-  );
+  const defaults: Record<LogKind, string> = {
+    Transport: "Car",
+    Meal: "Plant-based",
+    Energy: "Electricity",
+    Purchase: "Clothing",
+  };
+  const [option, setOption] = useState<string>(defaults[kind]);
 
   const options: Record<LogKind, string[]> = {
     Transport: ["Car", "Bus", "Bike", "Walk", "Train"],
@@ -645,14 +646,16 @@ function LogForm({
     Purchase: ["Clothing", "Electronics", "Goods"],
   };
 
-  const unit =
-    kind === "Transport"
-      ? "miles"
-      : kind === "Meal"
-        ? "servings"
-        : kind === "Energy"
-          ? "kWh"
-          : "$";
+  const units: Record<LogKind, string> = {
+    Transport: "miles",
+    Meal: "servings",
+    Energy: "kWh",
+    Purchase: "$",
+  };
+  const unit = units[kind];
+
+  const numericAmount = Number(amount);
+  const co2 = estimateCO2(kind, option, numericAmount);
 
   return (
     <form
@@ -661,11 +664,12 @@ function LogForm({
         onSubmit(amount ? `${amount} ${unit} · ${option}` : option);
       }}
       className="space-y-4 px-1 pt-2"
+      aria-label={`Log ${kind.toLowerCase()} activity`}
     >
       <div className="space-y-2">
-        <Label>Type</Label>
+        <Label htmlFor="log-type">Type</Label>
         <Select value={option} onValueChange={setOption}>
-          <SelectTrigger>
+          <SelectTrigger id="log-type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -678,14 +682,25 @@ function LogForm({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Amount ({unit})</Label>
+        <Label htmlFor="log-amount">Amount ({unit})</Label>
         <Input
+          id="log-amount"
           type="number"
           inputMode="decimal"
-          placeholder={`e.g. 5`}
+          min={0}
+          placeholder="e.g. 5"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
+      </div>
+      <div
+        aria-live="polite"
+        className="rounded-xl bg-mint/50 px-3 py-2 text-xs text-moss"
+      >
+        Estimated impact:{" "}
+        <span className="font-semibold">
+          {co2 > 0 ? formatCO2(co2) : "—"}
+        </span>
       </div>
       <SheetFooter className="flex-row gap-2 pt-2">
         <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
@@ -773,4 +788,3 @@ function NavBtn({
   );
 }
 
-export { ArrowLeft };
