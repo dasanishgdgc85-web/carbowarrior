@@ -264,9 +264,9 @@ function HomeTab({
           <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-sage">
             Tuesday, June 10
           </p>
-          <h2 className="text-xl font-semibold tracking-tight text-ink">
+          <h1 className="text-xl font-semibold tracking-tight text-ink">
             Morning, Sarah
-          </h2>
+          </h1>
         </div>
         <Link
           to="/"
@@ -487,9 +487,9 @@ function ChallengesTab({ onOpenBoard }: { onOpenBoard: () => void }) {
         <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-sage">
           Community
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
           Challenges
-        </h2>
+        </h1>
       </header>
       <main className="space-y-4 px-4">
         {challenges.map((c) => {
@@ -562,9 +562,9 @@ function ProfileTab({
         <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-sage">
           Account
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
           Profile
-        </h2>
+        </h1>
       </header>
       <main className="space-y-6 px-4">
         <div className="flex items-center gap-4 rounded-2xl bg-card p-5 ring-1 ring-black/5">
