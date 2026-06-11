@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { estimateCO2, formatCO2, type LogKind } from "@/lib/carbon";
 import { toast } from "sonner";
 import {
   Car,
@@ -59,7 +60,7 @@ export const Route = createFileRoute("/app")({
   component: AppHome,
 });
 
-type LogKind = "Transport" | "Meal" | "Energy" | "Purchase";
+
 
 const initialTips = [
   {
@@ -630,15 +631,13 @@ function LogForm({
   onCancel: () => void;
 }) {
   const [amount, setAmount] = useState("");
-  const [option, setOption] = useState<string>(
-    kind === "Transport"
-      ? "Car"
-      : kind === "Meal"
-        ? "Plant-based"
-        : kind === "Energy"
-          ? "Electricity"
-          : "Clothing",
-  );
+  const defaults: Record<LogKind, string> = {
+    Transport: "Car",
+    Meal: "Plant-based",
+    Energy: "Electricity",
+    Purchase: "Clothing",
+  };
+  const [option, setOption] = useState<string>(defaults[kind]);
 
   const options: Record<LogKind, string[]> = {
     Transport: ["Car", "Bus", "Bike", "Walk", "Train"],
@@ -647,14 +646,16 @@ function LogForm({
     Purchase: ["Clothing", "Electronics", "Goods"],
   };
 
-  const unit =
-    kind === "Transport"
-      ? "miles"
-      : kind === "Meal"
-        ? "servings"
-        : kind === "Energy"
-          ? "kWh"
-          : "$";
+  const units: Record<LogKind, string> = {
+    Transport: "miles",
+    Meal: "servings",
+    Energy: "kWh",
+    Purchase: "$",
+  };
+  const unit = units[kind];
+
+  const numericAmount = Number(amount);
+  const co2 = estimateCO2(kind, option, numericAmount);
 
   return (
     <form
@@ -663,11 +664,12 @@ function LogForm({
         onSubmit(amount ? `${amount} ${unit} · ${option}` : option);
       }}
       className="space-y-4 px-1 pt-2"
+      aria-label={`Log ${kind.toLowerCase()} activity`}
     >
       <div className="space-y-2">
-        <Label>Type</Label>
+        <Label htmlFor="log-type">Type</Label>
         <Select value={option} onValueChange={setOption}>
-          <SelectTrigger>
+          <SelectTrigger id="log-type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -680,14 +682,25 @@ function LogForm({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Amount ({unit})</Label>
+        <Label htmlFor="log-amount">Amount ({unit})</Label>
         <Input
+          id="log-amount"
           type="number"
           inputMode="decimal"
-          placeholder={`e.g. 5`}
+          min={0}
+          placeholder="e.g. 5"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
+      </div>
+      <div
+        aria-live="polite"
+        className="rounded-xl bg-mint/50 px-3 py-2 text-xs text-moss"
+      >
+        Estimated impact:{" "}
+        <span className="font-semibold">
+          {co2 > 0 ? formatCO2(co2) : "—"}
+        </span>
       </div>
       <SheetFooter className="flex-row gap-2 pt-2">
         <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
